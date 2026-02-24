@@ -6,7 +6,6 @@ import {
   createAssociatedTokenAccount,
   createMint,
   getAccount,
-  getAssociatedTokenAddress,
   getAssociatedTokenAddressSync,
   mintTo,
   TOKEN_PROGRAM_ID,
