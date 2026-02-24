@@ -8,10 +8,10 @@ pub mod utils;
 
 use instructions::*;
 
-declare_id!("8dBRABTZyLKHUTNorhtAZvGUC3y28JDbLCwrd65LhZsB");
+declare_id!("EuMpMn6SSnSH7uVzuv8zNhyNZQEA4cLYjKPQNe8zwbX8");
 
 #[program]
-pub mod vault {
+pub mod arena {
     use super::*;
 
     pub fn initialize_config(ctx: Context<InitializeConfig>, platform_fee_bps: u16) -> Result<()> {
