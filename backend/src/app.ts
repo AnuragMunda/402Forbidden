@@ -1,5 +1,6 @@
 import express, { type Express } from "express";
 import cors from "cors";
+import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 
 const app: Express = express();
 
@@ -9,5 +10,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.status(200).send("Welcome to 402 Forbidden server");
 });
+
+app.use(errorMiddleware);
 
 export default app;
