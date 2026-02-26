@@ -179,14 +179,14 @@ describe("arena", () => {
       crypto.createHash("sha256").update("cryptography").digest(),
     );
     let guessFee = new BN(0.5 * LAMPORTS_PER_SOL);
-    let hintFee = new BN(0.5 * LAMPORTS_PER_SOL);
+    let chatFee = new BN(0.5 * LAMPORTS_PER_SOL);
 
     let treasuryInitialBalance = Number(
       (await getAccount(provider.connection, treasuryAta)).amount,
     );
 
     await program.methods
-      .createArena(initialPrize, secretHash, guessFee, hintFee)
+      .createArena(initialPrize, secretHash, guessFee, chatFee)
       .accountsStrict({
         admin: admin.publicKey,
         config,
@@ -236,9 +236,9 @@ describe("arena", () => {
       "Guess fee mismatch",
     );
     assert.equal(
-      arenaPda.hintFee.toNumber(),
-      hintFee.toNumber(),
-      "Hint fee mismatch",
+      arenaPda.chatFee.toNumber(),
+      chatFee.toNumber(),
+      "Chat fee mismatch",
     );
     assert.equal(arenaPda.isActive, true, "Arena should be active");
     assert.deepEqual(arenaPda.secretHash, secretHash, "Secret hash mismatch");
