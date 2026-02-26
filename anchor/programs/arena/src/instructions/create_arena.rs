@@ -61,11 +61,11 @@ impl<'info> CreateArena<'info> {
         initial_prize: u64,
         secret_hash: [u8; 32],
         guess_fee: u64,
-        hint_fee: u64,
+        chat_fee: u64,
         bumps: CreateArenaBumps,
     ) -> Result<()> {
         require!(
-            initial_prize > 0 && guess_fee > 0 && hint_fee > 0,
+            initial_prize > 0 && guess_fee > 0 && chat_fee > 0,
             GameError::InvalidAmount
         );
         require!(
@@ -96,7 +96,7 @@ impl<'info> CreateArena<'info> {
             secret_hash,
             vault_ata: self.vault_ata.key(),
             guess_fee,
-            hint_fee,
+            chat_fee,
             is_active: true,
             bump: bumps.arena,
         });

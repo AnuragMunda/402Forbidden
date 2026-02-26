@@ -11,7 +11,7 @@ pub struct ChallengeArena {
     pub secret_hash: [u8; 32],  // The hash of the real secret/password
     pub vault_ata: Pubkey,      // The ATA for the vault
     pub guess_fee: u64,         // The fee charged to submit password
-    pub hint_fee: u64,          // The fee charged to generate a new hint
+    pub chat_fee: u64,          // The fee charged to send a chat to guardian
     pub is_active: bool,        // Flag indicating if the challenge is active/inactive
     pub bump: u8,               // Bump for Challenge Arena PDA
 }
