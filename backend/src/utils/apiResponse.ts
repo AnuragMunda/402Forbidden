@@ -24,7 +24,7 @@ class ApiResponse {
    * @param {String} message - Response message
    */
   static ok(res: Response, data: null | any = null, message: string = ApiMessages.SUCCESS.OK) {
-    return this.success(res, HttpStatus.OK, message, data);
+    return this.success(res, HttpStatus.OK, data, message);
   }
 
   /**
@@ -38,7 +38,7 @@ class ApiResponse {
     data: null | any = null,
     message: string = ApiMessages.SUCCESS.CREATED,
   ) {
-    return this.success(res, HttpStatus.CREATED, message, data);
+    return this.success(res, HttpStatus.CREATED, data, message);
   }
 }
 

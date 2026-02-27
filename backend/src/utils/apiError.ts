@@ -41,4 +41,9 @@ export const NotFoundError = () =>
   new ApiError(ApiMessages.CLIENT_ERROR.NOT_FOUND, HttpStatus.NOT_FOUND, "NOT_FOUND");
 
 export const ConflictError = () =>
-  new ApiError(ApiMessages.CLIENT_ERROR.CONFLICT, HttpStatus.BAD_REQUEST, "CONFLICT");
+  new ApiError(ApiMessages.CLIENT_ERROR.CONFLICT, HttpStatus.CONFLICT, "CONFLICT");
+
+export const InternalServerError = () =>
+  new ApiError(ApiMessages.SERVER_ERROR.INTERNAL_ERROR, HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+
+export { ApiError };
