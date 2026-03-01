@@ -97,7 +97,6 @@ describe("arena", () => {
       [Buffer.from("config")],
       program.programId,
     );
-
     const arenaId = new anchor.BN(0);
 
     // const arenaIdBuf = Buffer.alloc(4);
@@ -110,17 +109,6 @@ describe("arena", () => {
 
     vaultAta = getAssociatedTokenAddressSync(mint, arena, true);
     treasuryAta = getAssociatedTokenAddressSync(mint, config, true);
-    console.log(
-      admin,
-      player,
-      mint,
-      adminAta,
-      playerAta,
-      config,
-      arena,
-      vaultAta,
-      treasuryAta,
-    );
   });
 
   it("initialize config", async () => {
@@ -225,11 +213,7 @@ describe("arena", () => {
       "Initial prize mismatch",
     );
     assert.equal(arenaPda.finalPrize.toNumber(), 0, "Final prize should be 0");
-    assert.equal(
-      arenaPda.winner,
-      null,
-      "Winner address mismatch",
-    );
+    assert.equal(arenaPda.winner, null, "Winner address mismatch");
     assert.equal(
       arenaPda.guessFee.toNumber(),
       guessFee.toNumber(),
