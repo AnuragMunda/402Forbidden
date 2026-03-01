@@ -27,10 +27,10 @@ export const guardian = async (input: string, history: ChatMessages, secret: str
 };
 
 // Utility function to generate password and hint
-export const generateSecret = async () => {
+export const generateSecret = async (level: '1' | '2' | '3' | '4' | '5' | '6') => {
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash",
-    contents: `Generate a new secret`,
+    contents: `Generate a new secret with difficulty level of ${level}`,
     config: {
       systemInstruction: secretGenerationInstruction,
     },
