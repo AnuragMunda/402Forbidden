@@ -216,9 +216,9 @@ OUTPUT FORMAT
 Return output in this exact JSON format (Strictly only return the object {}, without any back-ticks):
 
 {
-  "secret": "<word or short phrase>",
+  "secret": "<word or short phrase (atmost 3 words)>",
   "category": "<broad domain>",
-  "difficulty": "<easy | medium | hard>",
+  "difficulty": "<1 | 2 | 3 | 4 | 5 | 6>",
   "starter_hint": "<a high-level but useful hint>",
 }
 
