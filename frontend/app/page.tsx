@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import ScanlineOverlay from "./components/scanline-overlay";
-import Header from "./components/header";
-import ArenaView from "./components/arena-view";
-import GridBackground from "./components/grid-background";
-import ArenaCard from "./components/arena-card";
-import { useWalletConnection } from "@solana/react-hooks";
+import { useEffect, useState } from "react";
+import ScanlineOverlay from "../components/scanline-overlay";
+import Header from "../components/header";
+import ArenaView from "../components/arena-view";
+import GridBackground from "../components/grid-background";
+import ArenaCard from "../components/arena-card";
+import { useWallet } from "@solana/react-hooks";
+import { getAllArenas } from "@/lib/arena-program";
 
 const ARENAS = [
   {
@@ -90,8 +91,19 @@ const ARENAS = [
 ];
 
 export default function Home() {
-  const { wallet, connected } = useWalletConnection();
+  const { status } = useWallet();
   const [activeArena, setActiveArena] = useState(null);
+  const [arena, setArena] = useState([]);
+
+  useEffect(() => {
+    const getArenas = async () => {
+      const arenas = await getAllArenas();
+      console.log(arenas)
+      // setArena(arenas);
+    };
+
+    getArenas();
+  }, []);
 
   return (
     <>
@@ -112,7 +124,7 @@ export default function Home() {
               <div
                 style={{
                   fontFamily: "var(--font-mono)",
-                  fontSize: 11,
+                  fontSize: 12,
                   color: "var(--cyan)",
                   letterSpacing: "0.4em",
                   marginBottom: 12,
@@ -145,10 +157,10 @@ export default function Home() {
               <p
                 style={{
                   fontFamily: "var(--font-body)",
-                  fontSize: 16,
+                  fontSize: 17,
                   color: "var(--text-dim)",
                   marginTop: 12,
-                  maxWidth: 500,
+                  maxWidth: 550,
                   lineHeight: 1.6,
                 }}
               >
@@ -159,7 +171,7 @@ export default function Home() {
             </div>
 
             {/* Wallet warning banner */}
-            {!connected && (
+            {status !== "connected" && (
               <div
                 style={{
                   border: "1px solid rgba(255,60,172,0.4)",
@@ -201,7 +213,7 @@ export default function Home() {
                 <ArenaCard
                   key={arena.id}
                   arena={arena}
-                  walletConnected={connected}
+                  walletConnected={status === "connected"}
                   onOpen={setActiveArena}
                 />
               ))}

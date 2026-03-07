@@ -10,7 +10,13 @@ function ArenaCard({ arena, walletConnected, onOpen }) {
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={() => !locked && onOpen(arena)}
+      onClick={() => {
+        !locked && onOpen(arena);
+        window.scrollTo({
+          top: 0,
+          behavior: "auto",
+        });
+      }}
       style={{
         position: "relative",
         background:
@@ -115,7 +121,7 @@ function ArenaCard({ arena, walletConnected, onOpen }) {
       <div
         style={{
           fontFamily: "var(--font-mono)",
-          fontSize: 11,
+          fontSize: 12,
           color: "var(--text-dim)",
           letterSpacing: "0.1em",
           marginBottom: 20,
@@ -131,7 +137,7 @@ function ArenaCard({ arena, walletConnected, onOpen }) {
           alignItems: "center",
           gap: 8,
           fontFamily: "var(--font-mono)",
-          fontSize: 11,
+          fontSize: 13,
           color: locked ? "var(--text-dim)" : arena.color,
           opacity: locked ? 0.5 : 1,
         }}

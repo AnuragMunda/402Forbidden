@@ -36,7 +36,7 @@ function ChatMessage({ msg }) {
             msg.role === "user" ? "rgba(0,255,224,0.1)" : "var(--surface2)",
           border: `1px solid ${msg.role === "user" ? "rgba(0,255,224,0.3)" : "var(--border)"}`,
           fontFamily: "var(--font-body)",
-          fontSize: 14,
+          fontSize: 14.5,
           lineHeight: 1.6,
           color: "var(--text)",
           clipPath:

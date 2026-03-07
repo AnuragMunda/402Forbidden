@@ -14,9 +14,9 @@ function ArenaView({ arena, onBack }) {
   const [vaultStatus, setVaultStatus] = useState("locked"); // locked | shaking | cracked
   const chatEndRef = useRef(null);
 
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  // useEffect(() => {
+  //   chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // }, [messages]);
 
   const sendMessage = async () => {
     if (!inputVal.trim() || loading) return;
@@ -97,10 +97,16 @@ function ArenaView({ arena, onBack }) {
         }}
       >
         <button
-          onClick={onBack}
+          onClick={() => {
+            onBack();
+            window.scrollTo({
+              top: 0,
+              behavior: "auto",
+            });
+          }}
           style={{
             fontFamily: "var(--font-mono)",
-            fontSize: 11,
+            fontSize: 12,
             letterSpacing: "0.15em",
             background: "transparent",
             border: "1px solid var(--border)",
@@ -137,7 +143,7 @@ function ArenaView({ arena, onBack }) {
           <div
             style={{
               fontFamily: "var(--font-mono)",
-              fontSize: 11,
+              fontSize: 13,
               color: "var(--text-dim)",
               marginTop: 2,
             }}
@@ -148,7 +154,7 @@ function ArenaView({ arena, onBack }) {
         <div
           style={{
             fontFamily: "var(--font-mono)",
-            fontSize: 10,
+            fontSize: 12,
             color: arena.color,
             letterSpacing: "0.2em",
             padding: "4px 12px",
@@ -196,7 +202,7 @@ function ArenaView({ arena, onBack }) {
             <div
               style={{
                 fontFamily: "var(--font-display)",
-                fontSize: 11,
+                fontSize: 14,
                 letterSpacing: "0.25em",
                 color: arena.color,
                 marginBottom: 16,
@@ -205,12 +211,12 @@ function ArenaView({ arena, onBack }) {
                 gap: 8,
               }}
             >
-              <span style={{ fontSize: 16 }}>💡</span> GUARDIAN HINT
+              <span style={{ fontSize: 17 }}>💡</span> GUARDIAN HINT
             </div>
             <div
               style={{
                 fontFamily: "var(--font-body)",
-                fontSize: 16,
+                fontSize: 17,
                 lineHeight: 1.8,
                 color: "var(--text)",
                 fontStyle: "italic",
@@ -224,7 +230,7 @@ function ArenaView({ arena, onBack }) {
               style={{
                 marginTop: 16,
                 fontFamily: "var(--font-mono)",
-                fontSize: 10,
+                fontSize: 11,
                 color: "var(--text-dim)",
                 letterSpacing: "0.2em",
               }}
@@ -283,7 +289,7 @@ function ArenaView({ arena, onBack }) {
                 <div
                   style={{
                     fontFamily: "var(--font-display)",
-                    fontSize: 11,
+                    fontSize: 12,
                     letterSpacing: "0.25em",
                     color: "var(--text-dim)",
                     marginBottom: 20,
@@ -292,7 +298,7 @@ function ArenaView({ arena, onBack }) {
                     gap: 8,
                   }}
                 >
-                  <span style={{ fontSize: 16 }}>🔐</span> VAULT ACCESS TERMINAL
+                  <span style={{ fontSize: 17 }}>🔐</span> VAULT ACCESS TERMINAL
                 </div>
 
                 {/* Vault visual */}
@@ -315,7 +321,7 @@ function ArenaView({ arena, onBack }) {
                   style={{
                     marginBottom: 12,
                     fontFamily: "var(--font-mono)",
-                    fontSize: 11,
+                    fontSize: 12,
                     color: "var(--text-dim)",
                     letterSpacing: "0.15em",
                   }}
@@ -373,7 +379,7 @@ function ArenaView({ arena, onBack }) {
                       fontSize: 11,
                       color: "#ff4444",
                       marginTop: 8,
-                      animation: "reveal 0.2s",
+                      animation: "reveal 0.5s",
                     }}
                   >
                     ⚠ ACCESS DENIED — INCORRECT PASSWORD
@@ -442,7 +448,7 @@ function ArenaView({ arena, onBack }) {
               <div
                 style={{
                   fontFamily: "var(--font-display)",
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: 700,
                   color: "#fff",
                   letterSpacing: "0.15em",
@@ -470,7 +476,7 @@ function ArenaView({ arena, onBack }) {
                 <span
                   style={{
                     fontFamily: "var(--font-mono)",
-                    fontSize: 10,
+                    fontSize: 11,
                     color: "#00e676",
                     letterSpacing: "0.15em",
                   }}
@@ -483,7 +489,7 @@ function ArenaView({ arena, onBack }) {
               style={{
                 marginLeft: "auto",
                 fontFamily: "var(--font-mono)",
-                fontSize: 10,
+                fontSize: 11,
                 color: "var(--text-dim)",
                 letterSpacing: "0.15em",
               }}
@@ -617,7 +623,7 @@ function ArenaView({ arena, onBack }) {
             <div
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: 9,
+                fontSize: 12,
                 color: "var(--text-dim)",
                 marginTop: 8,
                 letterSpacing: "0.15em",
