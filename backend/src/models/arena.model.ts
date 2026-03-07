@@ -18,7 +18,7 @@ const arenaSchema = new Schema(
       unique: true,
     },
     difficulty: {
-      type: String,
+      type: Number,
       enum: secretDifficulty,
     },
     category: {

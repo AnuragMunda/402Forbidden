@@ -24,7 +24,7 @@ const facilitatorClient = new HTTPFacilitatorClient(facilitator);
 app.use(
   paymentMiddleware(
     {
-      "POST /guardian/generateSecret": {
+      "POST /guardian": {
         accepts: [
           {
             scheme: "exact",

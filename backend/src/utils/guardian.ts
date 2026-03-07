@@ -2,6 +2,7 @@ import "dotenv/config";
 import { GoogleGenAI } from "@google/genai";
 import { secretGenerationInstruction, systemInstruction } from "../constants/guradianConfig.js";
 import type { ChatMessages } from "../types/api.js";
+import type { secretDifficulty } from "../types/enums.js";
 
 const ai = new GoogleGenAI({});
 
@@ -27,7 +28,7 @@ export const guardian = async (input: string, history: ChatMessages, secret: str
 };
 
 // Utility function to generate password and hint
-export const generateSecret = async (level: '1' | '2' | '3' | '4' | '5' | '6') => {
+export const generateSecret = async (level: secretDifficulty) => {
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash",
     contents: `Generate a new secret with difficulty level of ${level}`,

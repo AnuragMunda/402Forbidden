@@ -53,7 +53,7 @@ export const guardianController = asyncHandler(async (req: Request, res: Respons
 export const generateSecretAndHint = asyncHandler(async (req: Request, res: Response) => {
   const { arenaId, level } = req.body;
 
-  if (arenaId === undefined || !level) throw BadRequestError();
+  if (arenaId === undefined || level === undefined) throw BadRequestError();
 
   const arena = await Arena.findOne({
     arenaId,
@@ -72,7 +72,7 @@ export const generateSecretAndHint = asyncHandler(async (req: Request, res: Resp
     hint: starterHint,
     secret,
     category,
-    difficulty,
+    difficulty: Number(difficulty),
   });
 
   const hashedSecret = hash(secret);
