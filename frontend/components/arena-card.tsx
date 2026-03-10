@@ -1,10 +1,14 @@
 import { useState } from "react";
 import DifficultyBars from "./difficulty-bars";
 import HexIcon from "./hex-icon";
+import { ArenaCardParams } from "@/lib/types";
+import { ARENAS_STATIC } from "@/constants/constants";
 
-function ArenaCard({ arena, walletConnected, onOpen }) {
+function ArenaCard({ arena, walletConnected, onOpen } : ArenaCardParams) {
   const [hovered, setHovered] = useState(false);
   const locked = !walletConnected;
+
+  const arenaMetadata = ARENAS_STATIC.find(a => a.id === arena.arenaId)
 
   return (
     <div
@@ -21,18 +25,18 @@ function ArenaCard({ arena, walletConnected, onOpen }) {
         position: "relative",
         background:
           hovered && !locked
-            ? `linear-gradient(135deg, rgba(${arena.color === "#00ffe0" ? "0,255,224" : arena.color === "#ff3cac" ? "255,60,172" : arena.color === "#f9a825" ? "249,168,37" : arena.color === "#7c4dff" ? "124,77,255" : arena.color === "#ff6b35" ? "255,107,53" : "0,230,118"},0.08) 0%, var(--surface) 60%)`
+            ? `linear-gradient(135deg, rgba(${arenaMetadata?.color === "#00ffe0" ? "0,255,224" : arenaMetadata?.color === "#ff3cac" ? "255,60,172" : arenaMetadata?.color === "#f9a825" ? "249,168,37" : arenaMetadata?.color === "#7c4dff" ? "124,77,255" : arenaMetadata?.color === "#ff6b35" ? "255,107,53" : "0,230,118"},0.08) 0%, var(--surface) 60%)`
             : "var(--surface)",
-        border: `1px solid ${hovered && !locked ? arena.color : "var(--border)"}`,
+        border: `1px solid ${hovered && !locked ? arenaMetadata?.color : "var(--border)"}`,
         padding: "28px 24px",
         cursor: locked ? "not-allowed" : "pointer",
         transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)",
         boxShadow:
           hovered && !locked
-            ? `0 0 30px ${arena.color}22, inset 0 0 20px ${arena.color}08`
+            ? `0 0 30px ${arenaMetadata?.color}22, inset 0 0 20px ${arenaMetadata?.color}08`
             : "none",
         animation: "reveal 0.6s ease backwards",
-        animationDelay: `${arena.id * 0.1}s`,
+        animationDelay: `${(arenaMetadata?.id ?? 0) * 0.1}s`,
         overflow: "hidden",
       }}
     >
@@ -47,16 +51,16 @@ function ArenaCard({ arena, walletConnected, onOpen }) {
             width: 16,
             height: 16,
             borderTop: corner.includes("top")
-              ? `2px solid ${arena.color}`
+              ? `2px solid ${arenaMetadata?.color}`
               : "none",
             borderBottom: corner.includes("bottom")
-              ? `2px solid ${arena.color}`
+              ? `2px solid ${arenaMetadata?.color}`
               : "none",
             borderLeft: corner.includes("left")
-              ? `2px solid ${arena.color}`
+              ? `2px solid ${arenaMetadata?.color}`
               : "none",
             borderRight: corner.includes("right")
-              ? `2px solid ${arena.color}`
+              ? `2px solid ${arenaMetadata?.color}`
               : "none",
             opacity: hovered ? 1 : 0.4,
             transition: "opacity 0.3s",
@@ -79,15 +83,15 @@ function ArenaCard({ arena, walletConnected, onOpen }) {
             fontSize: 10,
             letterSpacing: "0.2em",
             padding: "3px 10px",
-            background: locked ? "rgba(255,255,255,0.04)" : `${arena.color}22`,
-            border: `1px solid ${locked ? "var(--border)" : arena.color}`,
-            color: locked ? "var(--text-dim)" : arena.color,
+            background: locked ? "rgba(255,255,255,0.04)" : `${arenaMetadata?.color}22`,
+            border: `1px solid ${locked ? "var(--border)" : arenaMetadata?.color}`,
+            color: locked ? "var(--text-dim)" : arenaMetadata?.color,
             clipPath: "polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%)",
           }}
         >
-          {locked ? "🔒 LOCKED" : arena.status}
+          {locked ? "🔒 LOCKED" : arena.isActive ? "ACTIVE" : "INACTIVE"}
         </div>
-        <DifficultyBars level={arena.difficulty} color={arena.color} />
+        <DifficultyBars level={arenaMetadata?.difficulty} color={arenaMetadata?.color} />
       </div>
 
       {/* Arena icon */}
@@ -98,8 +102,8 @@ function ArenaCard({ arena, walletConnected, onOpen }) {
           transition: "opacity 0.3s",
         }}
       >
-        <HexIcon color={arena.color} size={52}>
-          {locked ? "⛔" : ["⚡", "🌐", "👁", "🌀", "🔱", "🔐"][arena.id - 1]}
+        <HexIcon color={arenaMetadata?.color} size={52}>
+          {locked ? "⛔" : ["⚡", "🌐", "👁", "🌀", "🔱", "🔐"][arenaMetadata?.id ?? 0]}
         </HexIcon>
       </div>
 
@@ -112,11 +116,11 @@ function ArenaCard({ arena, walletConnected, onOpen }) {
           color: locked ? "var(--text-dim)" : "#fff",
           letterSpacing: "0.15em",
           marginBottom: 4,
-          textShadow: !locked && hovered ? `0 0 20px ${arena.color}` : "none",
+          textShadow: !locked && hovered ? `0 0 20px ${arenaMetadata?.color}` : "none",
           transition: "text-shadow 0.3s",
         }}
       >
-        {arena.name}
+        {arenaMetadata?.name}
       </div>
       <div
         style={{
@@ -127,7 +131,7 @@ function ArenaCard({ arena, walletConnected, onOpen }) {
           marginBottom: 20,
         }}
       >
-        {arena.subtitle}
+        {arenaMetadata?.subtitle}
       </div>
 
       {/* Guardian label */}
@@ -138,7 +142,7 @@ function ArenaCard({ arena, walletConnected, onOpen }) {
           gap: 8,
           fontFamily: "var(--font-mono)",
           fontSize: 13,
-          color: locked ? "var(--text-dim)" : arena.color,
+          color: locked ? "var(--text-dim)" : arenaMetadata?.color,
           opacity: locked ? 0.5 : 1,
         }}
       >
@@ -147,11 +151,11 @@ function ArenaCard({ arena, walletConnected, onOpen }) {
             width: 6,
             height: 6,
             borderRadius: "50%",
-            background: arena.color,
-            boxShadow: `0 0 6px ${arena.color}`,
+            background: arenaMetadata?.color,
+            boxShadow: `0 0 6px ${arenaMetadata?.color}`,
           }}
         />
-        GUARDIAN: {arena.guardian}
+        GUARDIAN: {arenaMetadata?.guardian}
       </div>
 
       {/* Hover CTA */}
@@ -163,12 +167,12 @@ function ArenaCard({ arena, walletConnected, onOpen }) {
             left: 0,
             right: 0,
             padding: "12px",
-            background: `linear-gradient(to top, ${arena.color}33, transparent)`,
+            background: `linear-gradient(to top, ${arenaMetadata?.color}33, transparent)`,
             textAlign: "center",
             fontFamily: "var(--font-display)",
             fontSize: 11,
             letterSpacing: "0.2em",
-            color: arena.color,
+            color: arenaMetadata?.color,
             animation: "reveal 0.2s ease",
           }}
         >

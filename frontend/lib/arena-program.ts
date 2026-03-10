@@ -8,21 +8,21 @@ import {
   getOptionCodec,
   getAddressCodec,
   getU64Codec,
-  getU8Codec,
   getBooleanCodec,
   getBase58Codec,
   Base58EncodedBytes,
   getBase64Codec,
   fixCodecSize,
-  getBytesCodec,
-
+  getU8Codec,
+  getArrayCodec,
 } from "@solana/kit";
 
 import IDL from "@/constants/arena.json";
 import { BN } from "@coral-xyz/anchor";
+import { config } from "@/constants/constants";
 
 const PROGRAM_ID = address(IDL.address) as Address;
-const rpc = createSolanaRpc("https://api.devnet.solana.com");
+const rpc = createSolanaRpc(config.SOLANA_DEVNET_URL);
 
 export const getConfig = async () => {
   const [configPda] = await getProgramDerivedAddress({
@@ -41,9 +41,7 @@ export const getArena = async (id: number) => {
 };
 
 export const getAllArenas = async () => {
-  const discriminatorBytes = new Uint8Array([
-    110, 138, 16, 115, 180, 159, 158, 147,
-  ]);
+  const discriminatorBytes = new Uint8Array(config.ARENA_DISCRIMINATOR);
   const base58Discriminator = getBase58Codec().decode(discriminatorBytes);
   const accounts = await rpc
     .getProgramAccounts(PROGRAM_ID, {
@@ -53,44 +51,49 @@ export const getAllArenas = async () => {
           memcmp: {
             offset: 0n,
             bytes: base58Discriminator as Base58EncodedBytes,
-            encoding: "base58"
+            encoding: "base58",
           },
         },
       ],
     })
     .send();
 
-const challengeArenaCodec = getStructCodec([
-    ['arenaId', getU32Codec()],
-    ['winner', getOptionCodec(getAddressCodec())],
-    ['initialPrize', getU64Codec()],
-    ['finalPrize', getU64Codec()],
-    ['vaultAta', getAddressCodec()],
-    ['guessFee', getU64Codec()],
-    ['chatFee', getU64Codec()],
-    ['isActive', getBooleanCodec()],
-]);
+  const challengeArenaCodec = getStructCodec([
+    ["discriminator", getArrayCodec(getU8Codec(), { size: 8 })],
+    ["arenaId", getU32Codec()],
+    ["winner", getOptionCodec(getAddressCodec())],
+    ["initialPrize", getU64Codec()],
+    ["finalPrize", getU64Codec()],
+    ["secretHash", getArrayCodec(getU8Codec(), { size: 32 })],
+    ["vaultAta", getAddressCodec()],
+    ["guessFee", getU64Codec()],
+    ["chatFee", getU64Codec()],
+    ["isActive", getBooleanCodec()],
+    ["bump", getU8Codec()],
+  ]);
 
-const decodedArenas = accounts.map((account) => {
-    try {
+  const decodedArenas = accounts
+    .map((account) => {
+      try {
         // Access the raw data from the account
         const base64 = getBase64Codec();
-        const rawData = account.account.data[0]; 
-        
+        const rawData = account.account.data[0];
+
         // Decode using our defined codec
         const decoded = challengeArenaCodec.decode(base64.encode(rawData));
-        
+
         return {
-            pubkey: account.pubkey,
-            data: decoded
+          pubkey: account.pubkey,
+          data: decoded,
         };
-    } catch (e) {
+      } catch (e) {
         console.error(`Failed to decode account ${account.pubkey}:`, e);
         return null;
-    }
-}).filter(Boolean);
-
-  return decodedArenas;
+      }
+    })
+    .filter(Boolean);
+  const areanas = decodedArenas.filter((arena) => arena !== null);
+  return areanas;
 };
 
 const getArenaPda = async (id: number) => {
