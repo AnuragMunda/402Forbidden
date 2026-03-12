@@ -8,7 +8,7 @@ pub mod utils;
 
 use instructions::*;
 
-declare_id!("DLrdRezfLwZWTGgMBWhUapZfSHMQpRMyBazZpZ8ZKqWi");
+declare_id!("FXz7NNtye6crAu4JmDQ6TJDLywoA4rBPYDbwKBbthxtk");
 
 #[program]
 pub mod arena {
