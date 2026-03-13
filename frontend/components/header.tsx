@@ -222,14 +222,13 @@ function Header() {
 
         {open ? (
           <div
-            className="absolute top-20 right-3 z-10 bg-transparent min-w-[240px]"
+            className="absolute top-20 right-3 z-10 bg-black/80 min-w-[240px]"
             style={{
               fontFamily: "var(--font-display)",
               fontSize: 11,
               fontWeight: 700,
               letterSpacing: "0.15em",
               padding: "10px 24px",
-              background: "transparent",
               color: "var(--cyan)",
               border: `1px solid var(--cyan)`,
               cursor: "pointer",
