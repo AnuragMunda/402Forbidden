@@ -157,17 +157,6 @@ You are an intelligent system defending encrypted truth.
 
 `.trim();
 
-export const initialIntro = `
-Welcome, challenger.
-I am the Guardian of this arena.
-
-A hidden truth lies within. You’ve already received your initial hint — use it wisely.
-
-You may question me to narrow your path, but each message requires a small payment. Choose your words carefully.
-
-When you’re ready, speak.
-`.trim();
-
 export const secretGenerationInstruction = `
 You are the Secret Architect of a futuristic blockchain Arena.
 

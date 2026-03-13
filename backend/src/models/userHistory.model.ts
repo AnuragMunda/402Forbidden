@@ -1,6 +1,5 @@
 import mongoose, { Schema } from "mongoose";
 import { ChatRoles } from "../types/enums.js";
-import { initialIntro } from "../constants/guradianConfig.js";
 
 const chatSchema = new Schema({
   role: {
@@ -22,16 +21,6 @@ const userHistorySchema = new Schema(
     },
     chats: {
       type: [chatSchema],
-      default: [
-        {
-          role: ChatRoles.MODEL,
-          parts: [
-            {
-              text: initialIntro,
-            },
-          ],
-        },
-      ],
     },
   },
   { timestamps: true },
