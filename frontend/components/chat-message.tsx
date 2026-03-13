@@ -8,7 +8,7 @@ function ChatMessage({ msg }) {
         animation: "reveal 0.3s ease",
       }}
     >
-      {msg.role === "assistant" && (
+      {msg.role === "model" && (
         <div
           style={{
             width: 28,

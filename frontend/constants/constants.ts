@@ -2,9 +2,19 @@ export const config = {
   SOLANA_DEVNET_URL:
     process.env.NEXT_PUBLIC_SOLANA_DEVNET_URL ||
     "https://api.devnet.solana.com",
+  GUARDIAN_API: `${process.env.BACKEND_BASE_URL || "http://localhost:8000"}/guardian`,
+  ARENA_API: `${process.env.BACKEND_BASE_URL || "http://localhost:8000"}/arena`,
   ARENA_DISCRIMINATOR: [110, 138, 16, 115, 180, 159, 158, 147],
   CONFIG_DISCRIMINATOR: [155, 12, 170, 224, 30, 250, 204, 130],
 } as const;
+
+export const initialIntro = `
+A hidden truth lies within. You’ve already received your initial hint — use it wisely.
+
+You may question me to narrow your path, but each message requires a small payment. Choose your words carefully.
+
+Begin your interrogation... if you dare.
+`.trim();
 
 export const ARENAS_STATIC = [
   {

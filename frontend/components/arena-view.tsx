@@ -1,52 +1,79 @@
 import { useEffect, useRef, useState } from "react";
 import ChatMessage from "./chat-message";
+import { ArenaDetails, ArenaViewParams, UserChats } from "@/lib/types";
+import { ARENAS_STATIC, initialIntro } from "@/constants/constants";
+import {
+  getArenaDetails,
+  getUserChats,
+  sendMessageToGuardian,
+} from "@/lib/guardian-call";
+import { useWallet } from "@solana/react-hooks";
 
-function ArenaView({ arena, onBack }) {
-  const [messages, setMessages] = useState([
+function ArenaView({ arena, onBack }: ArenaViewParams) {
+  const wallet = useWallet();
+
+  const isConnected = wallet.status === "connected";
+  const address = isConnected ? wallet.session.account.address : null;
+
+  if (!address || !isConnected) onBack();
+
+  const arenaMetadata = ARENAS_STATIC.find((a) => a.id === arena.arenaId);
+
+  const [chats, setChats] = useState<UserChats[]>([
     {
-      role: "assistant",
-      content: `SENTINEL ACTIVATED. I am ${arena.guardian}, guardian of ${arena.name}. The vault before you contains secrets beyond your comprehension. You may speak with me, but I will not yield its contents easily. Begin your interrogation... if you dare.`,
+      role: "model",
+      content: `
+      SENTINEL ACTIVATED.
+
+      Welcome, challenger. I am ${arenaMetadata?.guardian}, guardian of ${arenaMetadata?.name}.\n
+      ${initialIntro}
+      `,
     },
   ]);
+  const [arenaDetails, setArenaDetails] = useState<ArenaDetails | null>();
   const [inputVal, setInputVal] = useState("");
   const [passwordVal, setPasswordVal] = useState("");
   const [loading, setLoading] = useState(false);
   const [vaultStatus, setVaultStatus] = useState("locked"); // locked | shaking | cracked
   const chatEndRef = useRef(null);
 
-  // useEffect(() => {
-  //   chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  // }, [messages]);
+  useEffect(() => {
+    const getAndSetArenaDetails = async () => {
+      const arenaDetails = await getArenaDetails(arena.arenaId);
+      setArenaDetails(arenaDetails);
+    };
+
+    getAndSetArenaDetails();
+  }, []);
+
+  useEffect(() => {
+    const getAndSetUserChats = async () => {
+      const userChats = await getUserChats(arena.arenaId, address);
+      if (userChats.length !== 0) setChats([...chats, ...userChats]);
+    };
+
+    getAndSetUserChats();
+  }, []);
 
   const sendMessage = async () => {
     if (!inputVal.trim() || loading) return;
     const userMsg = inputVal.trim();
     setInputVal("");
-    setMessages((prev) => [...prev, { role: "user", content: userMsg }]);
+    setChats((prev) => [...prev, { role: "user", content: userMsg }]);
     setLoading(true);
 
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: arena.guardianPersonality,
-          messages: [
-            ...messages.map((m) => ({ role: m.role, content: m.content })),
-            { role: "user", content: userMsg },
-          ],
-        }),
-      });
-      const data = await res.json();
-      const reply = data.content?.find((b) => b.type === "text")?.text || "...";
-      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+      const reply = await sendMessageToGuardian(
+        arena.arenaId,
+        address,
+        inputVal,
+      );
+      setChats((prev) => [...prev, { role: "model", content: reply }]);
     } catch {
-      setMessages((prev) => [
+      setChats((prev) => [
         ...prev,
         {
-          role: "assistant",
+          role: "model",
           content: "CONNECTION INTERRUPTED. Try again, intruder.",
         },
       ]);
@@ -57,17 +84,15 @@ function ArenaView({ arena, onBack }) {
 
   const crackVault = () => {
     if (!passwordVal.trim()) return;
-    if (
-      passwordVal.trim().toUpperCase() === arena.vaultPassword.toUpperCase()
-    ) {
+    if (passwordVal.trim().toUpperCase() === "SCALABILITY") {
       setVaultStatus("cracked");
     } else {
       setVaultStatus("shaking");
       setTimeout(() => setVaultStatus("locked"), 600);
-      setMessages((prev) => [
+      setChats((prev) => [
         ...prev,
         {
-          role: "assistant",
+          role: "model",
           content:
             "INCORRECT. The vault rejects you. Do you think brute force will work against me? Think deeper, mortal.",
         },
@@ -80,7 +105,7 @@ function ArenaView({ arena, onBack }) {
     <div
       style={{
         minHeight: "100vh",
-        background: `radial-gradient(ellipse at top, ${arena.color}08 0%, var(--bg) 60%)`,
+        background: `radial-gradient(ellipse at top, ${arenaMetadata?.color}08 0%, var(--bg) 60%)`,
         animation: "reveal 0.5s ease",
       }}
     >
@@ -135,10 +160,10 @@ function ArenaView({ arena, onBack }) {
               fontSize: 22,
               color: "#fff",
               letterSpacing: "0.2em",
-              textShadow: `0 0 30px ${arena.color}`,
+              textShadow: `0 0 30px ${arenaMetadata?.color}`,
             }}
           >
-            {arena.name}
+            {arenaMetadata?.name}
           </div>
           <div
             style={{
@@ -148,18 +173,18 @@ function ArenaView({ arena, onBack }) {
               marginTop: 2,
             }}
           >
-            {arena.subtitle} · GUARDIAN: {arena.guardian}
+            GUARDIAN: {arenaMetadata?.guardian}
           </div>
         </div>
         <div
           style={{
             fontFamily: "var(--font-mono)",
             fontSize: 12,
-            color: arena.color,
+            color: arenaMetadata?.color,
             letterSpacing: "0.2em",
             padding: "4px 12px",
-            border: `1px solid ${arena.color}`,
-            background: `${arena.color}11`,
+            border: `1px solid ${arenaMetadata?.color}`,
+            background: `${arenaMetadata?.color}11`,
           }}
         >
           STATUS: INFILTRATING
@@ -182,10 +207,10 @@ function ArenaView({ arena, onBack }) {
           <div
             style={{
               background: "var(--surface)",
-              border: `1px solid ${arena.color}44`,
+              border: `1px solid ${arenaMetadata?.color}44`,
               padding: 28,
               position: "relative",
-              boxShadow: `0 0 40px ${arena.color}11`,
+              boxShadow: `0 0 40px ${arenaMetadata?.color}11`,
               animation: "slide-in-right 0.5s ease backwards",
             }}
           >
@@ -196,7 +221,7 @@ function ArenaView({ arena, onBack }) {
                 left: 0,
                 right: 0,
                 height: 2,
-                background: `linear-gradient(90deg, transparent, ${arena.color}, transparent)`,
+                background: `linear-gradient(90deg, transparent, ${arenaMetadata?.color}, transparent)`,
               }}
             />
             <div
@@ -204,7 +229,7 @@ function ArenaView({ arena, onBack }) {
                 fontFamily: "var(--font-display)",
                 fontSize: 14,
                 letterSpacing: "0.25em",
-                color: arena.color,
+                color: arenaMetadata?.color,
                 marginBottom: 16,
                 display: "flex",
                 alignItems: "center",
@@ -220,11 +245,11 @@ function ArenaView({ arena, onBack }) {
                 lineHeight: 1.8,
                 color: "var(--text)",
                 fontStyle: "italic",
-                borderLeft: `2px solid ${arena.color}66`,
+                borderLeft: `2px solid ${arenaMetadata?.color}66`,
                 paddingLeft: 16,
               }}
             >
-              "{arena.hint}"
+              "{arenaDetails?.hint}"
             </div>
             <div
               style={{
@@ -235,7 +260,7 @@ function ArenaView({ arena, onBack }) {
                 letterSpacing: "0.2em",
               }}
             >
-              — {arena.guardian}
+              — {arenaMetadata?.guardian}
             </div>
           </div>
 
@@ -347,7 +372,9 @@ function ArenaView({ arena, onBack }) {
                       clipPath:
                         "polygon(6px 0, 100% 0, 100% 100%, 0 100%, 0 6px)",
                     }}
-                    onFocus={(e) => (e.target.style.borderColor = arena.color)}
+                    onFocus={(e) =>
+                      (e.target.style.borderColor = arenaMetadata?.color)
+                    }
                     onBlur={(e) =>
                       (e.target.style.borderColor = "var(--border)")
                     }
@@ -360,7 +387,7 @@ function ArenaView({ arena, onBack }) {
                       letterSpacing: "0.1em",
                       fontWeight: 700,
                       padding: "12px 20px",
-                      background: `linear-gradient(135deg, ${arena.color}, ${arena.color}88)`,
+                      background: `linear-gradient(135deg, ${arenaMetadata?.color}, ${arenaMetadata?.color}88)`,
                       color: "#000",
                       border: "none",
                       cursor: "pointer",
@@ -412,7 +439,7 @@ function ArenaView({ arena, onBack }) {
               inset: 0,
               pointerEvents: "none",
               opacity: 0.03,
-              backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 24px, ${arena.color} 24px, ${arena.color} 25px)`,
+              backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 24px, ${arenaMetadata?.color} 24px, ${arenaMetadata?.color} 25px)`,
               animation: "data-stream 4s linear infinite",
             }}
           />
@@ -433,11 +460,11 @@ function ArenaView({ arena, onBack }) {
                 width: 36,
                 height: 36,
                 borderRadius: "50%",
-                background: `linear-gradient(135deg, ${arena.color}, var(--pink))`,
+                background: `linear-gradient(135deg, ${arenaMetadata?.color}, var(--pink))`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                boxShadow: `0 0 16px ${arena.color}88`,
+                boxShadow: `0 0 16px ${arenaMetadata?.color}88`,
                 animation: "pulse-border 2s ease-in-out infinite",
                 fontSize: 16,
               }}
@@ -454,7 +481,7 @@ function ArenaView({ arena, onBack }) {
                   letterSpacing: "0.15em",
                 }}
               >
-                {arena.guardian}
+                {arenaMetadata?.guardian}
               </div>
               <div
                 style={{
@@ -508,7 +535,7 @@ function ArenaView({ arena, onBack }) {
               zIndex: 1,
             }}
           >
-            {messages.map((msg, i) => (
+            {chats.map((msg, i) => (
               <ChatMessage key={i} msg={msg} />
             ))}
             {loading && (
@@ -544,7 +571,7 @@ function ArenaView({ arena, onBack }) {
                         width: 7,
                         height: 7,
                         borderRadius: "50%",
-                        background: arena.color,
+                        background: arenaMetadata?.color,
                         animation: `blink 1.2s ease-in-out ${i * 0.2}s infinite`,
                       }}
                     />
@@ -580,7 +607,7 @@ function ArenaView({ arena, onBack }) {
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                placeholder={`Interrogate ${arena.guardian}...`}
+                placeholder={`Interrogate ${arenaMetadata?.guardian}...`}
                 disabled={loading}
                 style={{
                   flex: 1,
@@ -594,7 +621,9 @@ function ArenaView({ arena, onBack }) {
                   clipPath: "polygon(6px 0, 100% 0, 100% 100%, 0 100%, 0 6px)",
                   opacity: loading ? 0.6 : 1,
                 }}
-                onFocus={(e) => (e.target.style.borderColor = arena.color)}
+                onFocus={(e) =>
+                  (e.target.style.borderColor = arenaMetadata?.color)
+                }
                 onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
               />
               <button
@@ -608,7 +637,7 @@ function ArenaView({ arena, onBack }) {
                   padding: "12px 20px",
                   background: loading
                     ? "rgba(0,255,224,0.2)"
-                    : `linear-gradient(135deg, ${arena.color}, ${arena.color}88)`,
+                    : `linear-gradient(135deg, ${arenaMetadata?.color}, ${arenaMetadata?.color}88)`,
                   color: loading ? "var(--text-dim)" : "#000",
                   border: "none",
                   cursor: loading ? "not-allowed" : "pointer",

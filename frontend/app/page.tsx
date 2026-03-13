@@ -8,7 +8,7 @@ import GridBackground from "../components/grid-background";
 import ArenaCard from "../components/arena-card";
 import { useWallet } from "@solana/react-hooks";
 import { getAllArenas } from "@/lib/arena-program";
-import { Address, Option } from "@solana/kit";
+import { Address } from "@solana/kit";
 import { ARENAS_STATIC } from "@/constants/constants";
 import { Arena } from "@/lib/types";
 
@@ -25,7 +25,6 @@ export default function Home() {
   useEffect(() => {
     const getArenas = async () => {
       const arenas = await getAllArenas();
-      console.log(arenas);
       setArenas(arenas);
     };
 
