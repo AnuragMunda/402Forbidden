@@ -2,6 +2,7 @@ import express, { type Express } from "express";
 import cors from "cors";
 import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 import guardianRouter from "./routes/guardian.route.js";
+import arenaRouter from "./routes/arena.route.js";
 import { paymentMiddleware, x402ResourceServer } from "@x402/express";
 import { HTTPFacilitatorClient } from "@x402/core/server";
 import { facilitator } from "@payai/facilitator";
@@ -45,6 +46,7 @@ app.use(
 );
 
 app.use("/guardian", guardianRouter);
+app.use("/arena", arenaRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to 402 Forbidden server");
