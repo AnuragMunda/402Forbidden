@@ -155,6 +155,7 @@ function Header() {
         }}
       >
         <div
+          suppressHydrationWarning
           style={{ color: "var(--cyan)", fontSize: 18, letterSpacing: "0.1em" }}
         >
           {time.toLocaleTimeString("en-US", { hour12: false })}
