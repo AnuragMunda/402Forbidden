@@ -92,7 +92,7 @@ export const getAllArenas = async () => {
       }
     })
     .filter(Boolean);
-  const areanas = decodedArenas.filter((arena) => arena !== null);
+  const areanas = decodedArenas.filter((arena) => arena !== null).sort((a, b) => a.data.arenaId - b.data.arenaId);
   return areanas;
 };
 
