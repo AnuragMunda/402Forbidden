@@ -1,3 +1,5 @@
+import { address, Address } from "@solana/kit";
+
 export const config = {
   SOLANA_DEVNET_URL:
     process.env.NEXT_PUBLIC_SOLANA_DEVNET_URL ||
@@ -15,6 +17,9 @@ You may question me to narrow your path, but each message requires a small payme
 
 Begin your interrogation... if you dare.
 `.trim();
+
+export const MINT_ADDRESS =
+  address("D6tCeapwLY9ymPW1TaMcG6Wc83E3PtqkAjDzTNtwWnjw") as Address;
 
 export const ARENAS_STATIC = [
   {

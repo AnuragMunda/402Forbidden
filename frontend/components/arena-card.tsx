@@ -2,13 +2,13 @@ import { useState } from "react";
 import DifficultyBars from "./difficulty-bars";
 import HexIcon from "./hex-icon";
 import { ArenaCardParams } from "@/lib/types";
-import { ARENAS_STATIC } from "@/constants/constants";
+import { ARENAS_STATIC } from "@/constants";
 
-function ArenaCard({ arena, walletConnected, onOpen } : ArenaCardParams) {
+function ArenaCard({ arena, walletConnected, onOpen }: ArenaCardParams) {
   const [hovered, setHovered] = useState(false);
   const locked = !walletConnected;
 
-  const arenaMetadata = ARENAS_STATIC.find(a => a.id === arena.arenaId)
+  const arenaMetadata = ARENAS_STATIC.find((a) => a.id === arena.arenaId);
 
   return (
     <div
@@ -83,7 +83,9 @@ function ArenaCard({ arena, walletConnected, onOpen } : ArenaCardParams) {
             fontSize: 10,
             letterSpacing: "0.2em",
             padding: "3px 10px",
-            background: locked ? "rgba(255,255,255,0.04)" : `${arenaMetadata?.color}22`,
+            background: locked
+              ? "rgba(255,255,255,0.04)"
+              : `${arenaMetadata?.color}22`,
             border: `1px solid ${locked ? "var(--border)" : arenaMetadata?.color}`,
             color: locked ? "var(--text-dim)" : arenaMetadata?.color,
             clipPath: "polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%)",
@@ -91,7 +93,10 @@ function ArenaCard({ arena, walletConnected, onOpen } : ArenaCardParams) {
         >
           {locked ? "🔒 LOCKED" : arena.isActive ? "ACTIVE" : "INACTIVE"}
         </div>
-        <DifficultyBars level={arenaMetadata?.difficulty} color={arenaMetadata?.color} />
+        <DifficultyBars
+          level={arenaMetadata?.difficulty}
+          color={arenaMetadata?.color}
+        />
       </div>
 
       {/* Arena icon */}
@@ -103,7 +108,9 @@ function ArenaCard({ arena, walletConnected, onOpen } : ArenaCardParams) {
         }}
       >
         <HexIcon color={arenaMetadata?.color} size={52}>
-          {locked ? "⛔" : ["⚡", "🌐", "👁", "🌀", "🔱", "🔐"][arenaMetadata?.id ?? 0]}
+          {locked
+            ? "⛔"
+            : ["⚡", "🌐", "👁", "🌀", "🔱", "🔐"][arenaMetadata?.id ?? 0]}
         </HexIcon>
       </div>
 
@@ -116,7 +123,8 @@ function ArenaCard({ arena, walletConnected, onOpen } : ArenaCardParams) {
           color: locked ? "var(--text-dim)" : "#fff",
           letterSpacing: "0.15em",
           marginBottom: 4,
-          textShadow: !locked && hovered ? `0 0 20px ${arenaMetadata?.color}` : "none",
+          textShadow:
+            !locked && hovered ? `0 0 20px ${arenaMetadata?.color}` : "none",
           transition: "text-shadow 0.3s",
         }}
       >

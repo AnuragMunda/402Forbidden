@@ -1,4 +1,4 @@
-import { Address, Option } from "@solana/kit";
+import { Address, Base64EncodedDataResponse, Option, Slot } from "@solana/kit";
 import { Dispatch, SetStateAction } from "react";
 
 export interface Arena {
@@ -58,4 +58,13 @@ export interface UserHistoryResponseObject {
 export interface UserChats {
   role: string;
   content: string;
+}
+
+export interface ArenaAccount {
+  context: {
+    slot: Slot;
+  };
+  value: {
+    data: Base64EncodedDataResponse;
+  };
 }

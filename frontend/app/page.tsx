@@ -6,14 +6,15 @@ import Header from "../components/header";
 import ArenaView from "../components/arena-view";
 import GridBackground from "../components/grid-background";
 import ArenaCard from "../components/arena-card";
-import { useWallet } from "@solana/react-hooks";
+import { useTransactionPool, useWallet, useWalletSession } from "@solana/react-hooks";
 import { getAllArenas } from "@/lib/arena-program";
 import { Address } from "@solana/kit";
-import { ARENAS_STATIC } from "@/constants/constants";
+import { ARENAS_STATIC } from "@/constants";
 import { Arena } from "@/lib/types";
 
 export default function Home() {
   const { status } = useWallet();
+  const session = useWalletSession();
   const [activeArena, setActiveArena] = useState<Arena | null>(null);
   const [arenas, setArenas] = useState<
     {
@@ -161,8 +162,7 @@ export default function Home() {
                 { label: "TOTAL ARENAS", value: ARENAS_STATIC.length },
                 {
                   label: "VAULTS COMPROMISED",
-                  value: arenas.filter((a) => a.data.isActive === false)
-                    .length,
+                  value: arenas.filter((a) => a.data.isActive === false).length,
                 },
                 { label: "ACTIVE GUARDIANS", value: arenas.length },
                 { label: "PROTOCOL VERSION", value: "v1.0" },

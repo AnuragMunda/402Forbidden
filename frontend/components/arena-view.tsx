@@ -1,16 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import ChatMessage from "./chat-message";
 import { ArenaDetails, ArenaViewParams, UserChats } from "@/lib/types";
-import { ARENAS_STATIC, initialIntro } from "@/constants/constants";
+import { ARENAS_STATIC, initialIntro } from "@/constants";
 import {
   getArenaDetails,
   getUserChats,
   sendMessageToGuardian,
 } from "@/lib/guardian-call";
-import { useWallet } from "@solana/react-hooks";
+import { useSendTransaction, useWallet } from "@solana/react-hooks";
+import { getArena, getVerifyGuessInstruction } from "@/lib/arena-program";
+import crypto from "crypto";
 
 function ArenaView({ arena, onBack }: ArenaViewParams) {
   const wallet = useWallet();
+  const { send } = useSendTransaction();
 
   const isConnected = wallet.status === "connected";
   const address = isConnected ? wallet.session.account.address : null;
@@ -47,6 +50,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
   }, []);
 
   useEffect(() => {
+    if (!address) return;
     const getAndSetUserChats = async () => {
       const userChats = await getUserChats(arena.arenaId, address);
       if (userChats.length !== 0) setChats([...chats, ...userChats]);
@@ -56,7 +60,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
   }, []);
 
   const sendMessage = async () => {
-    if (!inputVal.trim() || loading) return;
+    if (!inputVal.trim() || loading || !address) return;
     const userMsg = inputVal.trim();
     setInputVal("");
     setChats((prev) => [...prev, { role: "user", content: userMsg }]);
@@ -82,23 +86,53 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
     }
   };
 
-  const crackVault = () => {
-    if (!passwordVal.trim()) return;
-    if (passwordVal.trim().toUpperCase() === "SCALABILITY") {
-      setVaultStatus("cracked");
-    } else {
-      setVaultStatus("shaking");
-      setTimeout(() => setVaultStatus("locked"), 600);
+  const verifyGuess = async () => {
+    if (!passwordVal.trim() || !address) return;
+
+    const hashedGuess = Array.from(
+      crypto.createHash("sha256").update(passwordVal.trim()).digest(),
+    );
+    const ix = await getVerifyGuessInstruction(
+      address,
+      arena.arenaId,
+      hashedGuess,
+    );
+
+    try {
+      await send({
+        instructions: [ix],
+        commitment: "confirmed",
+      });
+
+      const arenaInfo = await getArena(arena.arenaId);
+      console.log(arenaInfo?.winner.__option);
+
+      if (arenaInfo?.winner.__option === "None") {
+        setVaultStatus("shaking");
+        setTimeout(() => setVaultStatus("locked"), 600);
+        setChats((prev) => [
+          ...prev,
+          {
+            role: "model",
+            content:
+              "INCORRECT. The vault rejects you. Do you think brute force will work against me? Think deeper, mortal.",
+          },
+        ]);
+      } else {
+        setVaultStatus("cracked");
+      }
+    } catch (error) {
+      console.error(error);
       setChats((prev) => [
         ...prev,
         {
           role: "model",
-          content:
-            "INCORRECT. The vault rejects you. Do you think brute force will work against me? Think deeper, mortal.",
+          content: "CONNECTION INTERRUPED. Something went wrong. Try again.",
         },
       ]);
+    } finally {
+      setPasswordVal("");
     }
-    setPasswordVal("");
   };
 
   return (
@@ -357,7 +391,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
                   <input
                     value={passwordVal}
                     onChange={(e) => setPasswordVal(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && crackVault()}
+                    onKeyDown={(e) => e.key === "Enter" && verifyGuess()}
                     placeholder="TYPE PASSWORD..."
                     style={{
                       flex: 1,
@@ -380,7 +414,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
                     }
                   />
                   <button
-                    onClick={crackVault}
+                    onClick={verifyGuess}
                     style={{
                       fontFamily: "var(--font-display)",
                       fontSize: 11,

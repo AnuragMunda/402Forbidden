@@ -1,0 +1,11 @@
+{
+  "idl": "./constants/arena.json",
+  "scripts": {
+    "js": [
+      {
+        "from": "@codama/renderers-js",
+        "args": ["./generated/arena"]
+      }
+    ]
+  }
+}

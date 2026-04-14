@@ -1,4 +1,4 @@
-import { config } from "@/constants/constants";
+import { config } from "@/constants";
 import { Address } from "@solana/kit";
 import axios from "axios";
 import { ArenaDetailsResponseObject, UserHistoryResponseObject } from "./types";
@@ -14,7 +14,7 @@ export const sendMessageToGuardian = async (
     userAddress,
     input,
   });
-  console.log(response.data)
+  console.log(response.data);
   return response.data.data;
 };
 
@@ -32,6 +32,8 @@ export const getUserChats = async (arenaId: number, userAddress: Address) => {
   );
   if (response.data.data.length === 0) return response.data.data;
 
-  const userChats = parseUserChats(response.data.data as UserHistoryResponseObject);
+  const userChats = parseUserChats(
+    response.data.data as UserHistoryResponseObject,
+  );
   return userChats;
 };
