@@ -94,8 +94,8 @@ function ArenaCard({ arena, walletConnected, onOpen }: ArenaCardParams) {
           {locked ? "🔒 LOCKED" : arena.isActive ? "ACTIVE" : "INACTIVE"}
         </div>
         <DifficultyBars
-          level={arenaMetadata?.difficulty}
-          color={arenaMetadata?.color}
+          level={arenaMetadata ? arenaMetadata?.difficulty : 1}
+          color={arenaMetadata ? arenaMetadata?.color : ""}
         />
       </div>
 
@@ -107,7 +107,7 @@ function ArenaCard({ arena, walletConnected, onOpen }: ArenaCardParams) {
           transition: "opacity 0.3s",
         }}
       >
-        <HexIcon color={arenaMetadata?.color} size={52}>
+        <HexIcon color={arenaMetadata ? arenaMetadata?.color : ""} size={52}>
           {locked
             ? "⛔"
             : ["⚡", "🌐", "👁", "🌀", "🔱", "🔐"][arenaMetadata?.id ?? 0]}

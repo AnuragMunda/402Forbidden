@@ -1,4 +1,6 @@
-function ChatMessage({ msg }) {
+import { UserChats } from "@/lib/types";
+
+function ChatMessage({ msg }: { msg: UserChats }) {
   return (
     <div
       style={{

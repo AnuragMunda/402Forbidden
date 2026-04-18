@@ -1,4 +1,4 @@
-function DifficultyBars({ level, color }) {
+function DifficultyBars({ level, color } : { level: number, color: string}) {
   return (
     <div style={{ display: "flex", gap: 3 }}>
       {[1, 2, 3, 4, 5, 6].map((i) => (

@@ -1,26 +1,39 @@
 import { useEffect, useRef, useState } from "react";
 import ChatMessage from "./chat-message";
 import { ArenaDetails, ArenaViewParams, UserChats } from "@/lib/types";
-import { ARENAS_STATIC, initialIntro } from "@/constants";
+import { ARENAS_STATIC, initialIntro, MINT_ADDRESS } from "@/constants";
 import {
   getArenaDetails,
   getUserChats,
   sendMessageToGuardian,
 } from "@/lib/guardian-call";
-import { useSendTransaction, useWallet } from "@solana/react-hooks";
-import { getArena, getVerifyGuessInstruction } from "@/lib/arena-program";
+import {
+  useSendTransaction,
+  useSplToken,
+  useWallet,
+} from "@solana/react-hooks";
+import {
+  getArena,
+  getArenaPda,
+  getVerifyGuessInstruction,
+} from "@/lib/arena-program";
 import crypto from "crypto";
 
 function ArenaView({ arena, onBack }: ArenaViewParams) {
   const wallet = useWallet();
   const { send } = useSendTransaction();
+  const [arenaPda, setArenaPda] = useState<string | null>(null);
+
+  const { balance } = useSplToken(MINT_ADDRESS, {
+    owner: arenaPda || undefined,
+  });
 
   const isConnected = wallet.status === "connected";
   const address = isConnected ? wallet.session.account.address : null;
 
-  if (!address || !isConnected) onBack();
-
   const arenaMetadata = ARENAS_STATIC.find((a) => a.id === arena.arenaId);
+
+    if (!address || !isConnected || !arenaMetadata) onBack();
 
   const [chats, setChats] = useState<UserChats[]>([
     {
@@ -38,7 +51,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
   const [passwordVal, setPasswordVal] = useState("");
   const [loading, setLoading] = useState(false);
   const [vaultStatus, setVaultStatus] = useState("locked"); // locked | shaking | cracked
-  const chatEndRef = useRef(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const getAndSetArenaDetails = async () => {
@@ -50,6 +63,14 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
   }, []);
 
   useEffect(() => {
+    const fetchArenaPda = async () => {
+      const pda = await getArenaPda(arena.arenaId);
+      setArenaPda(pda);
+    };
+    fetchArenaPda();
+  }, [arena.arenaId]);
+
+  useEffect(() => {
     if (!address) return;
     const getAndSetUserChats = async () => {
       const userChats = await getUserChats(arena.arenaId, address);
@@ -58,6 +79,10 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
 
     getAndSetUserChats();
   }, []);
+
+   useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chats]);
 
   const sendMessage = async () => {
     if (!inputVal.trim() || loading || !address) return;
@@ -105,7 +130,6 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
       });
 
       const arenaInfo = await getArena(arena.arenaId);
-      console.log(arenaInfo?.winner.__option);
 
       if (arenaInfo?.winner.__option === "None") {
         setVaultStatus("shaking");
@@ -176,12 +200,12 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
             transition: "all 0.2s",
           }}
           onMouseEnter={(e) => {
-            e.target.style.borderColor = arena.color;
-            e.target.style.color = arena.color;
+            arenaMetadata ? (e.target as HTMLButtonElement).style.borderColor = arenaMetadata.color : "";
+            arenaMetadata ? (e.target as HTMLButtonElement).style.color = arenaMetadata.color : "";
           }}
           onMouseLeave={(e) => {
-            e.target.style.borderColor = "var(--border)";
-            e.target.style.color = "var(--text-dim)";
+            (e.target as HTMLButtonElement).style.borderColor = "var(--border)";
+            (e.target as HTMLButtonElement).style.color = "var(--text-dim)";
           }}
         >
           ← BACK
@@ -340,7 +364,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
                     marginTop: 8,
                   }}
                 >
-                  WELL DONE, INFILTRATOR. THE SENTINEL IS DEFEATED.
+                  WELL DONE, INFILTRATOR. THE SENTINEL IS DEFEATED. VAULT FUNDS HAS BEEN TRANSFERRED TO YOU.
                 </div>
               </div>
             ) : (
@@ -361,21 +385,23 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
                 </div>
 
                 {/* Vault visual */}
-                <div
-                  style={{
-                    textAlign: "center",
-                    marginBottom: 24,
-                    fontFamily: "var(--font-mono)",
-                    fontSize: 48,
-                    animation:
-                      vaultStatus === "shaking"
-                        ? "lock-shake 0.5s"
-                        : "float 4s ease-in-out infinite",
-                  }}
-                >
-                  🏛️
+                <div className="flex justify-center items-center gap-5">
+                  <div
+                    style={{
+                      textAlign: "center",
+                      marginBottom: 24,
+                      fontFamily: "var(--font-mono)",
+                      fontSize: 48,
+                      animation:
+                        vaultStatus === "shaking"
+                          ? "lock-shake 0.5s"
+                          : "float 4s ease-in-out infinite",
+                    }}
+                  >
+                    🏛️
+                  </div>
+                  <p className="font-bold text-xl">Balance: {`${balance?.uiAmount} USDC`}</p>
                 </div>
-
                 <div
                   style={{
                     marginBottom: 12,
@@ -407,7 +433,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
                         "polygon(6px 0, 100% 0, 100% 100%, 0 100%, 0 6px)",
                     }}
                     onFocus={(e) =>
-                      (e.target.style.borderColor = arenaMetadata?.color)
+                      (arenaMetadata ? e.target.style.borderColor = arenaMetadata.color : "")
                     }
                     onBlur={(e) =>
                       (e.target.style.borderColor = "var(--border)")
@@ -656,7 +682,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
                   opacity: loading ? 0.6 : 1,
                 }}
                 onFocus={(e) =>
-                  (e.target.style.borderColor = arenaMetadata?.color)
+                  (arenaMetadata ? e.target.style.borderColor = arenaMetadata?.color : "")
                 }
                 onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
               />
