@@ -1,11 +1,11 @@
 import { address, Address } from "@solana/kit";
-
+console.log(process.env.NEXT_PUBLIC_BACKEND_BASE_URL)
 export const config = {
   SOLANA_DEVNET_URL:
     process.env.NEXT_PUBLIC_SOLANA_DEVNET_URL ||
     "https://api.devnet.solana.com",
-  GUARDIAN_API: `${process.env.BACKEND_BASE_URL || "http://localhost:8000"}/guardian`,
-  ARENA_API: `${process.env.BACKEND_BASE_URL || "http://localhost:8000"}/arena`,
+  GUARDIAN_API: `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "http://localhost:8000"}/guardian`,
+  ARENA_API: `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "http://localhost:8000"}/arena`,
   ARENA_DISCRIMINATOR: [110, 138, 16, 115, 180, 159, 158, 147],
   CONFIG_DISCRIMINATOR: [155, 12, 170, 224, 30, 250, 204, 130],
 } as const;
