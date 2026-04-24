@@ -1,5 +1,5 @@
 import { address, Address } from "@solana/kit";
-console.log(process.env.NEXT_PUBLIC_BACKEND_BASE_URL)
+
 export const config = {
   SOLANA_DEVNET_URL:
     process.env.NEXT_PUBLIC_SOLANA_DEVNET_URL ||
