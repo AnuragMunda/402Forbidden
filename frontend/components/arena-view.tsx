@@ -81,7 +81,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
   }, []);
 
    useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [chats]);
 
   const sendMessage = async () => {

@@ -14,13 +14,7 @@ function ArenaCard({ arena, walletConnected, onOpen }: ArenaCardParams) {
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={() => {
-        !locked && onOpen(arena);
-        window.scrollTo({
-          top: 0,
-          behavior: "auto",
-        });
-      }}
+      onClick={() => !locked && onOpen(arena)}
       style={{
         position: "relative",
         background:
