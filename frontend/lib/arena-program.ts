@@ -44,7 +44,6 @@ const getConfigPda = async () => {
 export const getArena = async (id: number) => {
   const arenaPda = await getArenaPda(id);
   const account = await rpc.getAccountInfo(arenaPda, { encoding: "base64"}).send() as ArenaAccount;
-  console.log(account);
   const challengeArenaCodec = getStructCodec([
     ["discriminator", getArrayCodec(getU8Codec(), { size: 8 })],
     ["arenaId", getU32Codec()],
