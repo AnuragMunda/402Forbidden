@@ -24,7 +24,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
   const { send } = useSendTransaction();
   const [arenaPda, setArenaPda] = useState<string | null>(null);
 
-  const { balance } = useSplToken(MINT_ADDRESS, {
+  const { balance, refresh } = useSplToken(MINT_ADDRESS, {
     owner: arenaPda || undefined,
   });
 
@@ -33,7 +33,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
 
   const arenaMetadata = ARENAS_STATIC.find((a) => a.id === arena.arenaId);
 
-    if (!address || !isConnected || !arenaMetadata) onBack();
+  if (!address || !isConnected || !arenaMetadata) onBack();
 
   const [chats, setChats] = useState<UserChats[]>([
     {
@@ -80,8 +80,11 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
     getAndSetUserChats();
   }, []);
 
-   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
   }, [chats]);
 
   const sendMessage = async () => {
@@ -129,6 +132,9 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
         commitment: "confirmed",
       });
 
+      // Wait a moment for the transaction to be processed and state to be updated on-chain
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      
       const arenaInfo = await getArena(arena.arenaId);
 
       if (arenaInfo?.winner.__option === "None") {
@@ -156,6 +162,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
       ]);
     } finally {
       setPasswordVal("");
+      await refresh();
     }
   };
 
@@ -200,8 +207,14 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
             transition: "all 0.2s",
           }}
           onMouseEnter={(e) => {
-            arenaMetadata ? (e.target as HTMLButtonElement).style.borderColor = arenaMetadata.color : "";
-            arenaMetadata ? (e.target as HTMLButtonElement).style.color = arenaMetadata.color : "";
+            arenaMetadata
+              ? ((e.target as HTMLButtonElement).style.borderColor =
+                  arenaMetadata.color)
+              : "";
+            arenaMetadata
+              ? ((e.target as HTMLButtonElement).style.color =
+                  arenaMetadata.color)
+              : "";
           }}
           onMouseLeave={(e) => {
             (e.target as HTMLButtonElement).style.borderColor = "var(--border)";
@@ -364,7 +377,8 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
                     marginTop: 8,
                   }}
                 >
-                  WELL DONE, INFILTRATOR. THE SENTINEL IS DEFEATED. VAULT FUNDS HAS BEEN TRANSFERRED TO YOU.
+                  WELL DONE, INFILTRATOR. THE SENTINEL IS DEFEATED. VAULT FUNDS
+                  HAS BEEN TRANSFERRED TO YOU.
                 </div>
               </div>
             ) : (
@@ -400,7 +414,9 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
                   >
                     🏛️
                   </div>
-                  <p className="font-bold text-xl">Balance: {`${balance?.uiAmount} USDC`}</p>
+                  <p className="font-bold text-xl">
+                    Balance: {`${balance?.uiAmount} USDC`}
+                  </p>
                 </div>
                 <div
                   style={{
@@ -433,7 +449,9 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
                         "polygon(6px 0, 100% 0, 100% 100%, 0 100%, 0 6px)",
                     }}
                     onFocus={(e) =>
-                      (arenaMetadata ? e.target.style.borderColor = arenaMetadata.color : "")
+                      arenaMetadata
+                        ? (e.target.style.borderColor = arenaMetadata.color)
+                        : ""
                     }
                     onBlur={(e) =>
                       (e.target.style.borderColor = "var(--border)")
@@ -682,7 +700,9 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
                   opacity: loading ? 0.6 : 1,
                 }}
                 onFocus={(e) =>
-                  (arenaMetadata ? e.target.style.borderColor = arenaMetadata?.color : "")
+                  arenaMetadata
+                    ? (e.target.style.borderColor = arenaMetadata?.color)
+                    : ""
                 }
                 onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
               />
