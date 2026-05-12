@@ -40,7 +40,7 @@ export default function Home() {
         <Header />
 
         {activeArena ? (
-          <ArenaView arena={activeArena} onBack={() => setActiveArena(null)} />
+          <ArenaView arena={activeArena} onBack={() => setActiveArena(null)} setArenas={setArenas} />
         ) : (
           <main
             style={{ padding: "48px 32px", maxWidth: 1400, margin: "0 auto" }}
@@ -158,7 +158,7 @@ export default function Home() {
               }}
             >
               {[
-                { label: "TOTAL ARENAS", value: ARENAS_STATIC.length },
+                { label: "TOTAL ARENAS", value: arenas.length },
                 {
                   label: "VAULTS COMPROMISED",
                   value: arenas.filter((a) => a.data.isActive === false).length,

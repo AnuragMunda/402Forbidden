@@ -14,7 +14,7 @@ function ArenaCard({ arena, walletConnected, onOpen }: ArenaCardParams) {
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={() => !locked && onOpen(arena)}
+      onClick={() => !locked && arena.isActive && onOpen(arena)}
       style={{
         position: "relative",
         background:
@@ -77,11 +77,11 @@ function ArenaCard({ arena, walletConnected, onOpen }: ArenaCardParams) {
             fontSize: 10,
             letterSpacing: "0.2em",
             padding: "3px 10px",
-            background: locked
+            background: locked || !arena.isActive
               ? "rgba(255,255,255,0.04)"
               : `${arenaMetadata?.color}22`,
-            border: `1px solid ${locked ? "var(--border)" : arenaMetadata?.color}`,
-            color: locked ? "var(--text-dim)" : arenaMetadata?.color,
+            border: `1px solid ${locked || !arena.isActive ? "var(--border)" : arenaMetadata?.color}`,
+            color: locked || !arena.isActive ? "var(--text-dim)" : arenaMetadata?.color,
             clipPath: "polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%)",
           }}
         >
@@ -97,12 +97,12 @@ function ArenaCard({ arena, walletConnected, onOpen }: ArenaCardParams) {
       <div
         style={{
           marginBottom: 16,
-          opacity: locked ? 0.3 : 1,
+          opacity: locked || !arena.isActive ? 0.3 : 1,
           transition: "opacity 0.3s",
         }}
       >
         <HexIcon color={arenaMetadata ? arenaMetadata?.color : ""} size={52}>
-          {locked
+          {locked || !arena.isActive
             ? "⛔"
             : ["⚡", "🌐", "👁", "🌀", "🔱", "🔐"][arenaMetadata?.id ?? 0]}
         </HexIcon>
@@ -114,11 +114,11 @@ function ArenaCard({ arena, walletConnected, onOpen }: ArenaCardParams) {
           fontFamily: "var(--font-display)",
           fontWeight: 700,
           fontSize: 16,
-          color: locked ? "var(--text-dim)" : "#fff",
+          color: locked || !arena.isActive ? "var(--text-dim)" : "#fff",
           letterSpacing: "0.15em",
           marginBottom: 4,
           textShadow:
-            !locked && hovered ? `0 0 20px ${arenaMetadata?.color}` : "none",
+            !locked && arena.isActive && hovered ? `0 0 20px ${arenaMetadata?.color}` : "none",
           transition: "text-shadow 0.3s",
         }}
       >
@@ -144,8 +144,8 @@ function ArenaCard({ arena, walletConnected, onOpen }: ArenaCardParams) {
           gap: 8,
           fontFamily: "var(--font-mono)",
           fontSize: 13,
-          color: locked ? "var(--text-dim)" : arenaMetadata?.color,
-          opacity: locked ? 0.5 : 1,
+          color: locked || !arena.isActive ? "var(--text-dim)" : arenaMetadata?.color,
+          opacity: locked || !arena.isActive ? 0.5 : 1,
         }}
       >
         <div
@@ -161,7 +161,7 @@ function ArenaCard({ arena, walletConnected, onOpen }: ArenaCardParams) {
       </div>
 
       {/* Hover CTA */}
-      {!locked && hovered && (
+      {!locked && arena.isActive && hovered && (
         <div
           style={{
             position: "absolute",

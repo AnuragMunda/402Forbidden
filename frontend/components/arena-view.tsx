@@ -13,13 +13,14 @@ import {
   useWallet,
 } from "@solana/react-hooks";
 import {
+  getAllArenas,
   getArena,
   getArenaPda,
   getVerifyGuessInstruction,
 } from "@/lib/arena-program";
 import crypto from "crypto";
 
-function ArenaView({ arena, onBack }: ArenaViewParams) {
+function ArenaView({ arena, onBack, setArenas }: ArenaViewParams) {
   const wallet = useWallet();
   const { send } = useSendTransaction();
   const [arenaPda, setArenaPda] = useState<string | null>(null);
@@ -88,6 +89,11 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
     });
   }, [chats]);
 
+  const getArenas = async () => {
+    const arenas = await getAllArenas();
+    setArenas(arenas);
+  };
+
   const sendMessage = async () => {
     if (!inputVal.trim() || loading || !address) return;
     const userMsg = inputVal.trim();
@@ -141,7 +147,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
 
       if (arenaInfo?.winner.__option === "None") {
         setVaultStatus("shaking");
-        setTimeout(() => setVaultStatus("locked"), 600);
+        setTimeout(() => setVaultStatus("locked"), 3000);
         setChats((prev) => [
           ...prev,
           {
@@ -152,6 +158,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
         ]);
       } else {
         setVaultStatus("cracked");
+        await getArenas();
       }
     } catch (error) {
       console.error(error);
@@ -438,6 +445,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
                     onChange={(e) => setPasswordVal(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && verifyGuess()}
                     placeholder="TYPE PASSWORD..."
+                    disabled={verifying || arena.isActive === false}
                     style={{
                       flex: 1,
                       background: "var(--surface2)",
@@ -713,7 +721,11 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
                 onChange={(e) => setInputVal(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                 placeholder={`Interrogate ${arenaMetadata?.guardian}...`}
-                disabled={loading}
+                disabled={
+                  loading ||
+                  vaultStatus === "cracked" ||
+                  arena.isActive === false
+                }
                 style={{
                   flex: 1,
                   background: "var(--surface2)",
@@ -735,7 +747,11 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
               />
               <button
                 onClick={sendMessage}
-                disabled={loading}
+                disabled={
+                  loading ||
+                  vaultStatus === "cracked" ||
+                  arena.isActive === false
+                }
                 style={{
                   fontFamily: "var(--font-display)",
                   fontSize: 11,

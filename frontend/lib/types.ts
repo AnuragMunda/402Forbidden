@@ -21,6 +21,12 @@ export interface ArenaCardParams {
 export interface ArenaViewParams {
   arena: Arena;
   onBack: () => void;
+  setArenas: (
+    arenas: {
+      pubkey: Address;
+      data: Arena;
+    }[],
+  ) => void;
 }
 
 export interface ArenaDetailsResponseObject {
