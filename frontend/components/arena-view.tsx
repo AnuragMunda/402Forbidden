@@ -50,6 +50,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
   const [inputVal, setInputVal] = useState("");
   const [passwordVal, setPasswordVal] = useState("");
   const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [vaultStatus, setVaultStatus] = useState("locked"); // locked | shaking | cracked
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -116,6 +117,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
 
   const verifyGuess = async () => {
     if (!passwordVal.trim() || !address) return;
+    setVerifying(true);
 
     const hashedGuess = Array.from(
       crypto.createHash("sha256").update(passwordVal.trim()).digest(),
@@ -134,7 +136,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
 
       // Wait a moment for the transaction to be processed and state to be updated on-chain
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      
+
       const arenaInfo = await getArena(arena.arenaId);
 
       if (arenaInfo?.winner.__option === "None") {
@@ -162,6 +164,7 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
       ]);
     } finally {
       setPasswordVal("");
+      setVerifying(false);
       await refresh();
     }
   };
@@ -473,8 +476,32 @@ function ArenaView({ arena, onBack }: ArenaViewParams) {
                         "polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%)",
                       transition: "all 0.2s",
                     }}
+                    disabled={verifying}
                   >
-                    CRACK
+                    {verifying ? (
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 6,
+                          alignItems: "center",
+                        }}
+                      >
+                        {[0, 1, 2].map((i) => (
+                          <div
+                            key={i}
+                            style={{
+                              width: 7,
+                              height: 7,
+                              borderRadius: "50%",
+                              background: "var(--surface)",
+                              animation: `blink 1.2s ease-in-out ${i * 0.2}s infinite`,
+                            }}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      `CRACK`
+                    )}
                   </button>
                 </div>
                 {vaultStatus === "shaking" && (
