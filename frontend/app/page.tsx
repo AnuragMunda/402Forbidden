@@ -6,7 +6,7 @@ import Header from "../components/header";
 import ArenaView from "../components/arena-view";
 import GridBackground from "../components/grid-background";
 import ArenaCard from "../components/arena-card";
-import { useTransactionPool, useWallet, useWalletSession } from "@solana/react-hooks";
+import { useWallet } from "@solana/react-hooks";
 import { getAllArenas } from "@/lib/arena-program";
 import { Address } from "@solana/kit";
 import { ARENAS_STATIC } from "@/constants";
@@ -14,7 +14,6 @@ import { Arena } from "@/lib/types";
 
 export default function Home() {
   const { status } = useWallet();
-  const session = useWalletSession();
   const [activeArena, setActiveArena] = useState<Arena | null>(null);
   const [arenas, setArenas] = useState<
     {
