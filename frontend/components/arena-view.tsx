@@ -19,13 +19,14 @@ import {
   getVerifyGuessInstruction,
 } from "@/lib/arena-program";
 import crypto from "crypto";
+import { lamports, lamportsToSolString } from "@solana/client";
 
 function ArenaView({ arena, onBack, setArenas }: ArenaViewParams) {
   const wallet = useWallet();
   const { send } = useSendTransaction();
   const [arenaPda, setArenaPda] = useState<string | null>(null);
 
-  const { balance, refresh } = useSplToken(MINT_ADDRESS, {
+  const { balance, refresh, helper } = useSplToken(MINT_ADDRESS, {
     owner: arenaPda || undefined,
   });
 
@@ -440,7 +441,7 @@ function ArenaView({ arena, onBack, setArenas }: ArenaViewParams) {
                     letterSpacing: "0.15em",
                   }}
                 >
-                  ENTER VAULT PASSWORD:
+                  ENTER VAULT PASSWORD -- COST: {Number(arena.guessFee) / 1e6} USDC
                 </div>
                 <div style={{ display: "flex", gap: 8 }}>
                   <input
