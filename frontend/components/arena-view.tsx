@@ -31,10 +31,20 @@ function ArenaView({ arena, onBack, setArenas }: ArenaViewParams) {
 
   const isConnected = wallet.status === "connected";
   const address = isConnected ? wallet.session.account.address : null;
+  const [arenaDetails, setArenaDetails] = useState<ArenaDetails | null>();
 
-  const arenaMetadata = ARENAS_STATIC.find((a) => a.id === arena.arenaId);
+  const [inputVal, setInputVal] = useState("");
+  const [passwordVal, setPasswordVal] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [vaultStatus, setVaultStatus] = useState("locked"); // locked | shaking | cracked
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
-  if (!address || !isConnected || !arenaMetadata) onBack();
+  const arenaMetadata = ARENAS_STATIC.find(
+    (a) => a.difficulty === arenaDetails?.difficulty,
+  );
+
+  if (!address || !isConnected) onBack();
 
   const [chats, setChats] = useState<UserChats[]>([
     {
@@ -47,15 +57,8 @@ function ArenaView({ arena, onBack, setArenas }: ArenaViewParams) {
       `,
     },
   ]);
-  const [arenaDetails, setArenaDetails] = useState<ArenaDetails | null>();
-  const [inputVal, setInputVal] = useState("");
-  const [passwordVal, setPasswordVal] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [verifying, setVerifying] = useState(false);
-  const [vaultStatus, setVaultStatus] = useState("locked"); // locked | shaking | cracked
-  const chatEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+    useEffect(() => {
     const getAndSetArenaDetails = async () => {
       const arenaDetails = await getArenaDetails(arena.arenaId);
       setArenaDetails(arenaDetails);
@@ -126,7 +129,7 @@ function ArenaView({ arena, onBack, setArenas }: ArenaViewParams) {
     setVerifying(true);
 
     const hashedGuess = Array.from(
-      crypto.createHash("sha256").update(passwordVal.trim()).digest(),
+      crypto.createHash("sha256").update(passwordVal.trim().toLowerCase()).digest(),
     );
     const ix = await getVerifyGuessInstruction(
       address,

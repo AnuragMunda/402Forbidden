@@ -1,14 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DifficultyBars from "./difficulty-bars";
 import HexIcon from "./hex-icon";
-import { ArenaCardParams } from "@/lib/types";
+import { ArenaCardParams, ArenaDetails } from "@/lib/types";
 import { ARENAS_STATIC } from "@/constants";
+import { getArenaDetails } from "@/lib/guardian-call";
 
 function ArenaCard({ arena, walletConnected, onOpen }: ArenaCardParams) {
   const [hovered, setHovered] = useState(false);
+    const [arenaDetails, setArenaDetails] = useState<ArenaDetails | null>();
   const locked = !walletConnected;
 
-  const arenaMetadata = ARENAS_STATIC.find((a) => a.id === arena.arenaId);
+  useEffect(() => {
+    const getAndSetArenaDetails = async () => {
+      const arenaDetails = await getArenaDetails(arena.arenaId);
+      setArenaDetails(arenaDetails);
+    };
+
+    getAndSetArenaDetails();
+  }, []);
+
+  const arenaMetadata = ARENAS_STATIC.find(
+    (a) => a.difficulty === arenaDetails?.difficulty,
+  );
 
   return (
     <div
@@ -77,11 +90,15 @@ function ArenaCard({ arena, walletConnected, onOpen }: ArenaCardParams) {
             fontSize: 10,
             letterSpacing: "0.2em",
             padding: "3px 10px",
-            background: locked || !arena.isActive
-              ? "rgba(255,255,255,0.04)"
-              : `${arenaMetadata?.color}22`,
+            background:
+              locked || !arena.isActive
+                ? "rgba(255,255,255,0.04)"
+                : `${arenaMetadata?.color}22`,
             border: `1px solid ${locked || !arena.isActive ? "var(--border)" : arenaMetadata?.color}`,
-            color: locked || !arena.isActive ? "var(--text-dim)" : arenaMetadata?.color,
+            color:
+              locked || !arena.isActive
+                ? "var(--text-dim)"
+                : arenaMetadata?.color,
             clipPath: "polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%)",
           }}
         >
@@ -118,7 +135,9 @@ function ArenaCard({ arena, walletConnected, onOpen }: ArenaCardParams) {
           letterSpacing: "0.15em",
           marginBottom: 4,
           textShadow:
-            !locked && arena.isActive && hovered ? `0 0 20px ${arenaMetadata?.color}` : "none",
+            !locked && arena.isActive && hovered
+              ? `0 0 20px ${arenaMetadata?.color}`
+              : "none",
           transition: "text-shadow 0.3s",
         }}
       >
@@ -144,7 +163,10 @@ function ArenaCard({ arena, walletConnected, onOpen }: ArenaCardParams) {
           gap: 8,
           fontFamily: "var(--font-mono)",
           fontSize: 13,
-          color: locked || !arena.isActive ? "var(--text-dim)" : arenaMetadata?.color,
+          color:
+            locked || !arena.isActive
+              ? "var(--text-dim)"
+              : arenaMetadata?.color,
           opacity: locked || !arena.isActive ? 0.5 : 1,
         }}
       >
