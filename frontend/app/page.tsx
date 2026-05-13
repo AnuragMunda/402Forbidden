@@ -40,7 +40,11 @@ export default function Home() {
         <Header />
 
         {activeArena ? (
-          <ArenaView arena={activeArena} onBack={() => setActiveArena(null)} setArenas={setArenas} />
+          <ArenaView
+            arena={activeArena}
+            onBack={() => setActiveArena(null)}
+            setArenas={setArenas}
+          />
         ) : (
           <main
             style={{ padding: "48px 32px", maxWidth: 1400, margin: "0 auto" }}
@@ -163,7 +167,12 @@ export default function Home() {
                   label: "VAULTS COMPROMISED",
                   value: arenas.filter((a) => a.data.isActive === false).length,
                 },
-                { label: "ACTIVE GUARDIANS", value: arenas.length },
+                {
+                  label: "ACTIVE GUARDIANS",
+                  value:
+                    arenas.length -
+                    arenas.filter((a) => a.data.isActive === false).length,
+                },
                 { label: "PROTOCOL VERSION", value: "v1.0" },
               ].map((stat) => (
                 <div key={stat.label}>
