@@ -75,7 +75,7 @@ export const generateSecretAndHint = asyncHandler(async (req: Request, res: Resp
     difficulty: Number(difficulty),
   });
 
-  const hashedSecret = hash(secret);
+  const hashedSecret = hash(secret.toLowerCase());
 
   return ApiResponse.created(res, { hashedSecret }, ApiMessages.SUCCESS.CREATED);
 });
